@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<title>Caffeinated Tree View</title>
+		<script type="text/javascript" src="../../lib/jquery/dist/jquery.js"></script>
+		<!--script type="text/javascript" src="../../lib/jquery-mockjax/lib/jquery-1.7.2.js"></script-->
+		<script type="text/javascript" src="TreeView.js"></script>
+		<link rel="stylesheet" type="text/css" href="clean.css">
+		<link rel="stylesheet" type="text/css" href="test.css"/>
+	</head>
+	<body>
+		
+		<ul id="tree1" title="Group 1">
+			<li><a href="#">Link 1</a></li>
+			<li><a href="#">Link 2</a></li>
+			<li><a href="#">Link 3</a></li>
+			<li><a href="#">Link 4</a></li>
+			<li><a href="#">Link 5</a></li>
+			<ul title="Subgroup 1 l1" check-disabled="false">
+				<li><a href="#">Link 6</a></li>
+				<li><a href="#">Link 7</a></li>
+				<li><a href="#">Link 8</a></li>
+				<li><a href="#">Link 9</a></li>
+				<li><a href="#">Link 10</a></li>
+				<ul title="Subgroup 2 l2" icon="icon-tree-test">
+					<li><a href="#">Link 11</a></li>
+					<li><a href="#">Link 12</a></li>
+					<li><a href="#">Link 13</a></li>
+					<li><a href="#">Link 14</a></li>
+					<li><a href="#">Link 15</a></li>
+				</ul>
+			</ul>
+			<ul title="Subgroup 1 l1"/>
+		</ul>
+
+	</body>
+</html>
+<script type="text/javascript">
+	
+	$(document).ready(function() {
+		$("#tree1").tree({
+			selectable	: true
+			, icons		: undefined	
+		})
+	})
+	
+</script>

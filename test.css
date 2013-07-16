@@ -1,0 +1,103 @@
+.tree-view {
+	padding: 1em;
+	margin: 0;
+}
+
+.tree-view li {
+	list-style: none;
+}
+
+.tree-view ul {
+	margin: 0;
+	padding: 0;
+}
+
+
+.node-content ul {
+	margin: 0 1em;
+}
+
+.tree-view ul li {
+	margin: 0 ;
+	padding: 0 1em;
+}
+
+.tree-view .node-content {
+	height: 0;
+	overflow-y: hidden;
+	/*
+	-webkit-transition-delay: 0;
+	-webkit-transition-duration: 0.3s;
+	-webkit-transition-property: all;
+	-webkit-transition-timing-function: linear;
+	transition-delay: 0;
+	transition-duration: 0.3s;
+	transition-property: all;
+	transition-timing-function: linear;
+	*/
+}
+
+.tree-view .toggle-open > .node-content{
+	height: auto;
+	
+}
+
+.tree-view .icon {
+	width: 1em;
+	height: 1em;
+	display: inline-block;
+	border: dotted 0px #999;
+	background-color: #eee;
+}
+
+.tree-view .icon-tree-toggle {
+	background-color: #ddd;
+}
+
+.tree-view .icon-tree-toggle-empty {
+	background-color: #ccc;
+}
+
+.tree-view .toggle-open > .node-title > .icon-tree-toggle {
+	background-color: #ddd;
+}
+
+.tree-view  .icon-tree-toggle:before {
+	content: 'C';
+}
+
+.tree-view  .icon-tree-toggle-empty:before {
+	content: 'E';
+}
+
+.tree-view .toggle-open > .node-title > .icon-tree-toggle:before {
+	content: 'O';
+}
+
+.tree-view .icon-tree-folder:before {
+	content: 'F';
+}
+
+.tree-view .icon-tree-item:before {
+	content: 'I';
+}
+
+.tree-view .icon.check-box:before {
+	content: "×"
+}
+
+.tree-view .icon.check-box.checked:before {
+	content: "√";
+}
+
+.tree-view .icon.check-box.half-checked:before {
+	content: "■";
+}
+
+.tree-view .disabled {
+	opacity: 0.3;
+}
+
+.tree-view .icon-tree-test:before {
+	content: "T";
+}
