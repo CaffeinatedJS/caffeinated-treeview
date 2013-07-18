@@ -1,0 +1,6 @@
+[submodule "lib/normalize.css"]
+	path = lib/normalize.css
+	url = https://github.com/necolas/normalize.css.git
+[submodule "lib/jquery"]
+	path = lib/jquery
+	url = https://github.com/jquery/jquery.git
