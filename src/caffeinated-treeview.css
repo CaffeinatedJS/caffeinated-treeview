@@ -1,5 +1,9 @@
 @charset "utf-8";
 
+body {
+	line-height: 1em;
+}
+
 .tree-view {
 	padding: 1em;
 	margin: 0;
