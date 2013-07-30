@@ -5,6 +5,30 @@
 		return true
 	}
 
+	Object.defineProperty(
+		Object.prototype
+		, 'getSubObject'
+		, {
+			value		: function(p) {
+
+				if(p.constructor !== String) return this
+				
+				var path = p.trim().split('.')
+					, val = this
+					, i = 0
+
+				while(path[i] !== undefined
+					&& (val = val[path[i]]) !== undefined) {
+					++i
+				}
+
+				return val
+			}
+			, enumerable: false
+		}
+	)
+
+
 	var Tree = function(element, options) {
 		this.$element = $(element)
 		this.options = $.extend({}, Tree.DEFAULTS, options)
@@ -43,11 +67,12 @@
 				var wrapper = $("<div/>")
 						.attr("id", $element.attr("id"))
 						.addClass($element.attr("class"))
-
+				/*
 				$element
 					.removeAttr("id")
 					.removeAttr("class")
 					.wrap(wrapper)
+				//*/
 				$element = this.$element = $element.parent()
 			}
 				 
@@ -215,6 +240,9 @@
 		, allCheckable		: true
 		, allChecked		: false
 		, allCheckDisabled	: false
+		, dataMap			: {
+			root	: ""
+		}
 	}
 
 
