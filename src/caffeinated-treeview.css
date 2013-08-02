@@ -1,12 +1,11 @@
 @charset "utf-8";
 
-body {
-	line-height: 1em;
-}
-
 .tree-view {
-	padding: 1em;
-	margin: 0;
+	margin: 1em 0 0 0;
+	padding: .5em;
+	background-color: #F7F7F9;
+	border: 1px solid #E1E1E8;
+	border-radius: 5px;
 }
 
 .tree-view li {
@@ -20,12 +19,12 @@ body {
 
 
 .node-content ul {
-	margin: 0 1em;
+	padding: 0 2em;
 }
 
 .tree-view ul li {
 	margin: 0 ;
-	padding: 0 1em;
+	padding: 0 2em;
 }
 
 .tree-view .node-content {
@@ -42,20 +41,37 @@ body {
 	transition-timing-function: linear;
 	*/
 }
+.tree-view .node-content li
+, .tree-view .node-title {
+	display: block;
+	height: 2em;
+	width: auto;
+}
+.tree-view .node-content li > *
+, .tree-view .node-title > *{
+	float: left;
+}
+.tree-view .node-content li > a
+, .tree-view .node-title > .title-label{
+	height: 1.5em;
+	margin: 0.3em 0 0 0;
+	padding: 0 0.3em;
+}
 
 .tree-view .toggle-open > .node-content{
 	height: auto;
-	
 }
 
-.tree-view .icon {
-	width: 1em;
-	height: 1em;
-	display: inline-block;
-	border: dotted 0px #999;
-	background-color: #eee;
+/*
+.tree-view .node-title > .icon:last-child {
+	margin: 0 0.5em 0 0;
 }
 
+.tree-view .node-content a {
+	margin: 0 0 0 0.5em;
+}
+*/
+/*
 .tree-view .icon-tree-toggle {
 	background-color: #ddd;
 }
@@ -67,7 +83,8 @@ body {
 .tree-view .toggle-open > .node-title > .icon-tree-toggle {
 	background-color: #ddd;
 }
-
+*/
+/*
 .tree-view  .icon-tree-toggle:before {
 	content: 'C';
 }
@@ -79,7 +96,8 @@ body {
 .tree-view .toggle-open > .node-title > .icon-tree-toggle:before {
 	content: 'O';
 }
-
+*/
+/*
 .tree-view .icon-tree-folder:before {
 	content: 'F';
 }
@@ -87,9 +105,10 @@ body {
 .tree-view .icon-tree-item:before {
 	content: 'I';
 }
-
+*/
+/*
 .tree-view .icon.check-box:before {
-	content: "×"
+	content: "×";
 }
 
 .tree-view .icon.check-box.checked:before {
@@ -98,6 +117,74 @@ body {
 
 .tree-view .icon.check-box.half-checked:before {
 	content: "■";
+}
+*/
+
+
+.tree-view .icon {
+	width: 2em;
+	height: 2em;
+	/*padding: 0.5em 0 0 0.5em;*/
+	line-height: 1em;
+	display: inline-block;
+	background-image: url(checkbox.icon.simple.svg);
+	background-repeat: no-repeat;
+}
+
+.tree-view .icon.check-box {
+	background-repeat: no-repeat;
+	background-position: 5px 5px;
+}
+.tree-view .icon.check-box:hover {
+	background-position: -70px 5px;
+}
+.tree-view .check-box.checked {
+	background-position: -20px 5px;
+}
+.tree-view .check-box.checked:hover {
+	background-position: -95px 5px;
+}
+.tree-view .check-box.half.checked {
+	background-position: -45px 5px;
+}
+.tree-view .check-box.half.checked:hover {
+	background-position: -120px 5px;
+}
+
+
+.tree-view .toggle-open > .node-title > .icon-tree-toggle {
+	background-position: -20px -20px;
+}
+.tree-view  .icon-tree-toggle {
+	background-position: 5px -20px;
+}
+.tree-view  .icon-tree-toggle-empty {
+	background-position: 45px -20px;
+}
+
+.tree-view .toggle-open > .node-title > .icon-tree-folder {
+	background-position: -70px -20px;
+}
+.tree-view .icon-tree-folder {
+	background-position: -45px -20px;
+}
+
+
+.tree-view .icon-tree-item {
+	background-position: -95px -20px;
+}
+
+.tree-view div.node-title.selected > .title-label
+, .tree-view li.selected > a {
+	border: 0px;
+	border-radius: 3px;
+	color: white;
+	background: #357EBD;
+}
+
+.tree-view a::selection
+, .tree-view span::selection {
+	background: rgba(255, 255, 255, 0);
 }
 
 .tree-view .disabled {
