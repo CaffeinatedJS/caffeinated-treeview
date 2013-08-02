@@ -3,7 +3,7 @@
 .tree-view {
 	margin: 1em 0 0 0;
 	padding: .5em;
-	background-color: #F7F7F9;
+	/*background-color: #F7F7F9;*/
 	border: 1px solid #E1E1E8;
 	border-radius: 5px;
 }
@@ -187,9 +187,18 @@
 	background: rgba(255, 255, 255, 0);
 }
 
-.tree-view .disabled {
-	opacity: 0.3;
+.tree-view .check-box.disabled, .tree-view .check-box.disabled:hover{
+	background-position: -145px 5px;
 }
+
+.tree-view .check-box.checked.disabled, .tree-view .check-box.checked.disabled:hover{
+	background-position: -170px 5px;
+}
+
+.tree-view .check-box.checked.half.disabled, .tree-view .check-box.checked.half.disabled:hover{
+	background-position: -195px 5px;
+}
+
 
 .tree-view .icon-tree-test:before {
 	content: "T";
