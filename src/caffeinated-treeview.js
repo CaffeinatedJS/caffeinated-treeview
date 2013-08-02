@@ -11,7 +11,7 @@
 		, {
 			value		: function(p) {
 
-				if(p.constructor !== String) return this
+				if (p.constructor !== String) return this
 				
 				var path = p.trim().split('.')
 					, val = this
@@ -45,11 +45,11 @@
 				, data = options.data
 
 			//Rend Static Nodes
-			if($element.children().length)
+			if ($element.children().length)
 				this.rendStaticNodes()
 
 			//Rend nodes from data
-			if(data)
+			if (data)
 				this.rendDataNodes(data)
 
 			//Register node events listeners
@@ -62,20 +62,24 @@
 			var $element = this.$element
 				, options = this.options
 
+			//*
 			//Detect and wrap base dom with div
-			if($element[0].nodeName.toLowerCase() === "ul") {
+			if ($element[0].nodeName.toLowerCase() === "ul") {
 				var wrapper = $("<div/>")
 						.attr("id", $element.attr("id"))
 						.addClass($element.attr("class"))
-				/*
+				
 				$element
 					.removeAttr("id")
 					.removeAttr("class")
 					.wrap(wrapper)
-				//*/
+				
 				$element = this.$element = $element.parent()
+
+				if (options.panelMenu)
+					$element.attr("context-menu", options.panelMenu)
 			}
-				 
+			//*/
 			$element.addClass("tree-view")
 			
 			//Process folder node
@@ -101,18 +105,28 @@
 						= ($this.attr("check-disabled")
 							|| options.allCheckDisabled.toString()).toBoolean()
 					, collapsed = $this.attr("collapsed") || options.allCollapsed
-					, title = $('<div class="node-title"/>')
+					, title = $('<span class="title-label"/>')
 						.text($this.attr("title"))
+						.wrap('<div class="node-title"'
+							+ (options.folderMenu 
+								? ' context-menu="' + options.folderMenu + '"' 
+								: ' ' )
+							+ '/>')
+						.parent()
 					, content = $('<div class="node-content"/>')
 
 				$this.prepend(title)
 
-				if(checkable) {
+				if (checkable) {
 					var checkBoxIcon = $('<span class="icon check-box"/>')
 					checkBoxIcon
 						.addClass(checked ? "checked" : "")
-						.addClass(checkDisabled ? "disabled" : "")
 					title.prepend(checkBoxIcon)
+				}
+
+				if (checkDisabled) {
+					checkBoxIcon.addClass(checkDisabled ? "disabled" : "")
+					$this.find("li, ul").attr("check-disabled", "true")
 				}
 
 				if (collapsed) {
@@ -143,13 +157,22 @@
 				, options = this.options
 				, processCheckBox = this.processCheckBox
 				, processIcon = this.processIcon
+				, contextmenu = options.itemMenu
 
 			nodes.each(function() {
 
 				var $this = $(this)
+					, checkDisabled = $this.attr("check-disabled") === "true"
+						 || options.allCheckDisabled
 				
+				if (contextmenu) $this.attr("context-menu", contextmenu)
+
 				processCheckBox($this, options)
 				processIcon($this, options)
+
+				if (checkDisabled)
+					$this.find(".check-box").addClass("disabled")
+
 
 			})
 
@@ -157,7 +180,7 @@
 
 		, processIcon		: function(node, options){
 
-			if(!(node.attr("icon")
+			if (!(node.attr("icon")
 					|| options.allHasIcon.toString()).toBoolean())
 				return
 			
@@ -177,7 +200,7 @@
 
 		, processCheckBox	: function(node, options){
 			
-			if(!(node.attr("checkable")
+			if (!(node.attr("checkable")
 					|| options.allCheckable.toString()).toBoolean())
 				return
 
@@ -243,6 +266,12 @@
 		, dataMap			: {
 			root	: ""
 		}
+		//Context Menu Define
+		, folderMenu		: ''
+		, itemMenu			: ''
+		, panelMenu			: ''
+		//Overflow Behaviour Define
+		, overflow			: "scroll"// Or 'resize'
 	}
 
 
@@ -254,7 +283,7 @@
 			var $this = $(this)
 				, options = $.extend({}
 					, Tree.DEFAULTS
-					, typeof object === "object" && option)
+					, typeof option === "object" && option)
 				, data = $this.data("tree")
 
 			if (!data) $this.data("tree", (data = new Tree(this, options)))
@@ -272,27 +301,51 @@
 		.on('click.tree.check-box.folder'
 			, '.tree-view ul > .node-title > .check-box', function() {
 
-				if($(this).hasClass("disabled")) return
+				if ($(this).hasClass("disabled")) return
 
 				var $this = $(this)
-					, childs = $this.parent().next().find(".check-box")
+					, allChilds = $this.parent().next().find('.check-box')
+					, avilableChilds = $this.parent().next().find('.check-box:not([class~="disabled"])')
 					, parents = $this.closest("ul")
 						.parentsUntil(".tree-view", "ul")
+					, dblchecks = $this.closest("ul").find('.node-title > .check-box')
 
 				$this.toggleClass("checked")
-					.removeClass("half-checked")
-				if($this.hasClass("checked"))
-					childs.addClass("checked")
+					.addClass("half")
+
+				if ($this.hasClass("checked"))
+					avilableChilds.addClass("checked")
 				else
-					childs.removeClass("checked")
-				//parent.toggleClass("half-checked")
+					avilableChilds.removeClass("checked")
+
+				if (allChilds.length === avilableChilds.length)
+					$this.removeClass("half")
+
 				checkParentsStat(parents)
 
-				$(document).trigger("check", '.tree-view ul')
+				//*
+				dblchecks.each(function() {
+					var $that = $(this)
+						, childs = $that.parent().next().find('.check-box')
+						, checkedChilds = $that.parent().next().find('.check-box.checked')
+
+					//$that.addClass("checked")
+					
+					if (childs.length === checkedChilds.length) return
+
+					if (checkedChilds.length === 0) {
+						$that.removeClass("checked")
+						return
+					}
+
+					$that.addClass("half")
+				})
+				//*/
 
 			})
 		.on('click.tree.check-box.item'
 			, '.tree-view li > .check-box', function() {
+				if ($(this).hasClass("disabled")) return
 				$(this).toggleClass("checked")
 				var parents = $(this).parentsUntil(".tree-view", "ul")
 				checkParentsStat(parents)
@@ -300,6 +353,41 @@
 		.on('click.tree.toggle'
 			, '.tree-view ul > .node-title > .icon-tree-toggle', function() {
 				$(this).closest("ul").toggleClass("toggle-open")
+			})
+		.on('dblclick.tree.foldericon'
+			, '.tree-view .icon.icon-tree-folder', function() {
+				$(this).closest("ul").toggleClass("toggle-open")
+			})
+		.on('click.tree.select contextmenu.tree.select'
+			, '.tree-view .icon, .tree-view .title-label, .tree-view a', function(e) {
+				var $this = $(this).parent()
+					, root = $this.closest(".tree-view")
+					, others = root.find(".node-title, li")
+				others.removeClass("selected")
+				$this.addClass("selected")
+			})
+		.on('contextmenu.tree'
+			, '.tree-view, .tree-view .icon, .tree-view .title-label, .tree-view a', function(e) {
+				
+				var $this = $(this)
+					, target = $this.hasClass("tree-view") ? $this : $this.parent()
+					, contextmenu = target.attr("context-menu")
+					, pointX = e.clientX - 10
+					, pointY = e.clientY - 5
+					, menu = $("#" + contextmenu)
+
+				$(".dropdown-menu").removeClass("show")
+
+				menu.css("top", pointY)
+					.css("left", pointX)
+					.addClass("show")
+
+				$(document)
+
+				return false
+			})
+		.on("click.contextmenu.off contextmenu.contextmenu.off", function(e) {
+				$(".dropdown-menu").removeClass("show")
 			})
 	
 	var checkParentsStat = function(parents) {
@@ -310,15 +398,15 @@
 						=== parent.find(".node-content .check-box.checked").length
 				, isHalfChecked
 					 = !isAllChecked
-					 && parent.find(".check-box.checked").length > 0 
+					 && parent.find(".node-content .check-box.checked").length > 0 
 				, checkBox = parent.children(".node-title").find(".check-box")
 
 			checkBox.removeClass("checked")
-			checkBox.removeClass("half-checked")
+			checkBox.removeClass("half")
 
-			if(isHalfChecked)
-				checkBox.addClass("half-checked")
-			if(isAllChecked)
+			if (isHalfChecked)
+				checkBox.addClass("half checked")
+			if (isAllChecked)
 				checkBox.addClass("checked")
 		})
 	}
