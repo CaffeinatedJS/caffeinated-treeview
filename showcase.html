@@ -6,34 +6,71 @@
 		<script type="text/javascript" src="lib/jquery/dist/jquery.js"></script>
 		<!--script type="text/javascript" src="../../lib/jquery-mockjax/lib/jquery-1.7.2.js"></script-->
 		<script type="text/javascript" src="src/caffeinated-treeview.js"></script>
+	
 		<link rel="stylesheet" type="text/css" href="lib/normalize.css/normalize.css">
+		<link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.css">
 		<link rel="stylesheet" type="text/css" href="src/caffeinated-treeview.css"/>
+
 	</head>
 	<body>
-		
-		<ul id="tree1" title="Group 1">
-			<li><a href="#">Link 1</a></li>
-			<li><a href="#">Link 2</a></li>
-			<li><a href="#">Link 3</a></li>
-			<li><a href="#">Link 4</a></li>
-			<li><a href="#">Link 5</a></li>
-			<ul title="Subgroup 1 l1" check-disabled="false">
-				<li><a href="#">Link 6</a></li>
-				<li><a href="#">Link 7</a></li>
-				<li><a href="#">Link 8</a></li>
-				<li><a href="#">Link 9</a></li>
-				<li><a href="#">Link 10</a></li>
-				<ul title="Subgroup 2 l2" icon="icon-tree-test">
-					<li><a href="#">Link 11</a></li>
-					<li><a href="#">Link 12</a></li>
-					<li><a href="#">Link 13</a></li>
-					<li><a href="#">Link 14</a></li>
-					<li><a href="#">Link 15</a></li>
+		<div class="container col-12">
+			<div class="panel col-6">
+				<div class="input-group">
+			      <input type="text" class="form-control">
+			      <span class="input-group-btn">
+			        <button class="btn btn-default" type="button">Go!</button>
+			      </span>
+			    </div>
+				<ul id="tree1" title="分组 1">
+					<li><a href="#">条目 1</a></li>
+					<li><a href="#">条目 2</a></li>
+					<li><a href="#">条目 3</a></li>
+					<li><a href="#">条目 4</a></li>
+					<li><a href="#">条目 5</a></li>
+					<ul title="分组 1 l1" check-disabled="true">
+						<li check-disabled="true"><a href="#">条目 6</a></li>
+						<li><a href="#">条目 7</a></li>
+						<li><a href="#">条目 8</a></li>
+						<li><a href="#">条目 9</a></li>
+						<li><a href="#">条目 10</a></li>
+						<ul title="分组 2 l2">
+						<!--ul title="分组 2 l2" icon="icon-tree-test"-->
+							<li><a href="#">条目 11</a></li>
+							<li><a href="#">条目 12</a></li>
+							<li><a href="#">条目 13</a></li>
+							<li><a href="#">条目 14</a></li>
+							<li><a href="#">条目 15</a></li>
+						</ul>
+					</ul>
+					<ul title="分组 1 l1"></ul>
 				</ul>
-			</ul>
-			<ul title="Subgroup 1 l1"/>
-		</ul>
+				<ul id="tree1-folderMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+					<li class="dropdown-header">编辑位置</li>
+					<li><a href="#">上升一级</a></li>
+					<li><a href="#">升至顶级</a></li>
+					<li class="dropdown-header">编辑信息</li>
+					<li><a href="#">修改信息</a></li>
+					<li><a href="#">新增子项</a></li>
+					<li class="divider"></li>
+					<li class="dropdown-header">删除该项</li>
+					<li><a href="#">删除但保留子项</a></li>
+					<li><a href="#">删除且包括子项</a></li>
+				</ul>
+				<ul id="tree1-itemMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+					<li class="dropdown-header">编辑位置</li>
+					<li><a href="#">上升一级</a></li>
+					<li><a href="#">升至顶级</a></li>
+					<li class="dropdown-header">编辑信息</li>
+					<li><a href="#">修改信息</a></li>
+					<li><a href="#">删除</a></li>
+				</ul>
+				<ul id="tree1-panelMenu" class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu">
+					<li><a href="#">更新数据</a></li>
+					<li><a href="#">添加结点</a></li>
+				</ul>
+			</div>
 
+		</div>
 	</body>
 </html>
 <script type="text/javascript">
@@ -41,7 +78,10 @@
 	$(document).ready(function() {
 		$("#tree1").tree({
 			selectable	: true
-			, icons		: undefined	
+			, icons		: undefined
+			, folderMenu: "tree1-folderMenu"
+			, itemMenu	: "tree1-itemMenu"
+			, panelMenu	: "tree1-panelMenu"
 		})
 	})
 	
