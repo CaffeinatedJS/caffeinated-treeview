@@ -1,5 +1,6 @@
 @charset "utf-8";
 
+/* frame layout style define */
 .tree-view {
 	margin: 1em 0 0 0;
 	padding: .5em;
@@ -8,39 +9,25 @@
 	border-radius: 5px;
 }
 
-.tree-view li {
-	list-style: none;
-}
-
 .tree-view ul {
 	margin: 0;
-	padding: 0;
-}
-
-
-.node-content ul {
 	padding: 0 2em;
+}
+.tree-view > ul {
+	padding: 0;
 }
 
 .tree-view ul li {
 	margin: 0 ;
 	padding: 0 2em;
+	list-style: none;
 }
 
 .tree-view .node-content {
 	height: 0;
 	overflow-y: hidden;
-	/*
-	-webkit-transition-delay: 0;
-	-webkit-transition-duration: 0.3s;
-	-webkit-transition-property: all;
-	-webkit-transition-timing-function: linear;
-	transition-delay: 0;
-	transition-duration: 0.3s;
-	transition-property: all;
-	transition-timing-function: linear;
-	*/
 }
+
 .tree-view .node-content li
 , .tree-view .node-title {
 	display: block;
@@ -62,75 +49,17 @@
 	height: auto;
 }
 
-/*
-.tree-view .node-title > .icon:last-child {
-	margin: 0 0.5em 0 0;
-}
-
-.tree-view .node-content a {
-	margin: 0 0 0 0.5em;
-}
-*/
-/*
-.tree-view .icon-tree-toggle {
-	background-color: #ddd;
-}
-
-.tree-view .icon-tree-toggle-empty {
-	background-color: #ccc;
-}
-
-.tree-view .toggle-open > .node-title > .icon-tree-toggle {
-	background-color: #ddd;
-}
-*/
-/*
-.tree-view  .icon-tree-toggle:before {
-	content: 'C';
-}
-
-.tree-view  .icon-tree-toggle-empty:before {
-	content: 'E';
-}
-
-.tree-view .toggle-open > .node-title > .icon-tree-toggle:before {
-	content: 'O';
-}
-*/
-/*
-.tree-view .icon-tree-folder:before {
-	content: 'F';
-}
-
-.tree-view .icon-tree-item:before {
-	content: 'I';
-}
-*/
-/*
-.tree-view .icon.check-box:before {
-	content: "×";
-}
-
-.tree-view .icon.check-box.checked:before {
-	content: "√";
-}
-
-.tree-view .icon.check-box.half-checked:before {
-	content: "■";
-}
-*/
-
-
+/* icons style define */
 .tree-view .icon {
 	width: 2em;
 	height: 2em;
-	/*padding: 0.5em 0 0 0.5em;*/
 	line-height: 1em;
 	display: inline-block;
 	background-image: url(checkbox.icon.simple.svg);
 	background-repeat: no-repeat;
 }
 
+/* check-box style define */
 .tree-view .icon.check-box {
 	background-repeat: no-repeat;
 	background-position: 5px 5px;
@@ -150,8 +79,17 @@
 .tree-view .check-box.half.checked:hover {
 	background-position: -120px 5px;
 }
+.tree-view .check-box.disabled, .tree-view .check-box.disabled:hover{
+	background-position: -145px 5px;
+}
+.tree-view .check-box.checked.disabled, .tree-view .check-box.checked.disabled:hover{
+	background-position: -170px 5px;
+}
+.tree-view .check-box.checked.half.disabled, .tree-view .check-box.checked.half.disabled:hover{
+	background-position: -195px 5px;
+}
 
-
+/*  */
 .tree-view .toggle-open > .node-title > .icon-tree-toggle {
 	background-position: -20px -20px;
 }
@@ -162,6 +100,7 @@
 	background-position: 45px -20px;
 }
 
+/*  */
 .tree-view .toggle-open > .node-title > .icon-tree-folder {
 	background-position: -70px -20px;
 }
@@ -169,11 +108,12 @@
 	background-position: -45px -20px;
 }
 
-
+/*  */
 .tree-view .icon-tree-item {
 	background-position: -95px -20px;
 }
 
+/*  */
 .tree-view div.node-title.selected > .title-label
 , .tree-view li.selected > a {
 	border: 0px;
@@ -185,21 +125,4 @@
 .tree-view a::selection
 , .tree-view span::selection {
 	background: rgba(255, 255, 255, 0);
-}
-
-.tree-view .check-box.disabled, .tree-view .check-box.disabled:hover{
-	background-position: -145px 5px;
-}
-
-.tree-view .check-box.checked.disabled, .tree-view .check-box.checked.disabled:hover{
-	background-position: -170px 5px;
-}
-
-.tree-view .check-box.checked.half.disabled, .tree-view .check-box.checked.half.disabled:hover{
-	background-position: -195px 5px;
-}
-
-
-.tree-view .icon-tree-test:before {
-	content: "T";
 }
