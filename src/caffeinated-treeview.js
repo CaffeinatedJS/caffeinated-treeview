@@ -51,7 +51,7 @@
 		, rend			: function() {
 
 			this.rendStaticNodes()
-			this.rendDynamicNodes()
+			//this.rendDynamicNodes()
 
 		}
 
@@ -93,103 +93,116 @@
 
 		}
 
-		, dom2data			: function($el) {
+		, dom2data			: function($dom) {
 			
-			var $dom = $el
+			var $dom = $dom || this.$element
 				, options = this.options
-				, data = {
+				, datas = []
+				, dom2data = this.dom2data
+				, that = this
 
-					title		: $dom.attr("title") || $dom.text()
-					, type			: "item"
-					, isOpen		: $dom.hasClass("toggle-open")
-										|| options.allDefaultOpen
+			$dom.each(function() {
+				var data = {
 
-					//icon
-					, hasIcon		: ($dom.attr("icon") !== undefined)
-										|| options.allHasIcon
-					, icon			: $dom.attr("contextmenu")
-										|| options.icons.item
-					//check-box
-					, checkable 	: $dom.attr("checkable")
-										|| $dom.hasClass("checkable")
-										|| options.allCheckable
-					, checked		: $dom.attr("box-checked")
-										|| $dom.hasClass("checked")
-										|| options.allChecked
-					, checkDisabled	: $dom.attr("check-disabled")
-										|| $dom.hasClass("check-disabled")
-										|| options.allCheckDisable
-					//context-menu
-					, contextmenu	: $dom.attr("contextmenu")
-										|| options.itemMenu
-					//actions
-					, dataToggle	: $dom.data("toggle")
-										|| $dom.children("a:first").data("toggle")
-					, toggleTarget	: $dom.attr("href")
-										|| $dom.children("a:first").attr("href")
+						title		: $dom.attr("title") || $dom.text()
+						, type			: "item"
+						, isOpen		: $dom.hasClass("toggle-open")
+											|| options.allDefaultOpen
 
+						//icon
+						, hasIcon		: ($dom.attr("icon") !== undefined)
+											|| options.allHasIcon
+						, icon			: $dom.attr("contextmenu")
+											|| options.icons.item
+						//check-box
+						, checkable 	: $dom.attr("checkable")
+											|| $dom.hasClass("checkable")
+											|| options.allCheckable
+						, checked		: $dom.attr("box-checked")
+											|| $dom.hasClass("checked")
+											|| options.allChecked
+						, checkDisabled	: $dom.attr("check-disabled")
+											|| $dom.hasClass("check-disabled")
+											|| options.allCheckDisable
+						//context-menu
+						, contextmenu	: $dom.attr("contextmenu")
+											|| options.itemMenu
+						//actions
+						, dataToggle	: $dom.data("toggle")
+											|| $dom.children("a:first").data("toggle")
+						, toggleTarget	: $dom.attr("href")
+											|| $dom.children("a:first").attr("href")
+
+					}
+
+				for (var n in data) {
+					var d = data[n]
+					if(d === "false" || d == undefined) data[n] = false
 				}
 
-			for (var n in data) {
-				var d = data[n]
-				if(d === "false" || d == undefined) data[n] = false
-			}
+				if ($dom[0].nodeName.toLowerCase() === "ul") {
+					
+					var childs = $dom.children()
 
-			if ($dom[0].nodeName.toLowerCase() === "ul") {
-				
-				var that = this
-					, childs = $dom.children()
-					, dom2data = this.dom2data
+					//this.ul2data($dom, data)
+					data.type = "folder"
+					data.contextmenu = $dom.attr("contextmenu")
+										|| options.folderMenu
 
-				//this.ul2data($dom, data)
-				data.type = "folder"
-				data.contextmenu = $dom.attr("contextmenu")
-									|| options.folderMenu
+					if (childs.length > 0) {
 
-				if (childs.length > 0) {
+						data.childs = []
 
-					data.childs = []
-
-					$dom.children().each(function() {
-						var $this = $(this)
-						data.childs.push(
-							dom2data.call(that, $this, data.childs))
-					})
-
+						$dom.children().each(function() {
+							var $this = $(this)
+							data.childs.push(
+								dom2data.call(that, $this, data.childs))
+						})
+					}
 				}
 
-			}
+				datas.push(data)
+			})
 
-			return data
+			return datas
 		}
 
 		, rendDynamicNodes	: function(dat, $tgt) {
 			
-			var data = dat || this.options.data
 
-			if (data.type !== "folder" && data.type !== "item") return
+			var datas = dat || this.options.data
 
-			var $target = $tgt || this.$element
-				//, data2ul = this.data2ul
-				//, data2li = this.data2li
-				, $node
+			if ($(datas) === "object") datas = [datas]
 
-			if (data.type === "folder")
-				$node = this.data2ul(data)
+			for (var i = 0; i < datas.length; i++) {
+				
+				var data = datas[i]
 
-			if (data.type === "item")
-				$node = this.data2li(data)
+				if (data.type !== "folder" && data.type !== "item") continue
 
-			$target.append($node.attr("contextmenu", data.contextmenu))
+				var $target = $tgt || this.$element
+					, $node
 
-			if (!data.childs) return
+				if (data.type === "folder")
+					$node = this.data2ul(data)
 
-			for (var i = 0; i < data.childs.length; i++) {
-				var child = data.childs[i]
-				if (data.checkDisabled)
-					child.checkDisabled = data.checkDisabled
-				this.rendDynamicNodes(child, $node.children(".node-content"))
+				if (data.type === "item")
+					$node = this.data2li(data)
+
+				$target.append($node.attr("contextmenu", data.contextmenu))
+
+				if (!data.childs) continue
+
+				for (var i = 0; i < data.childs.length; i++) {
+					var child = data.childs[i]
+					if (data.checkDisabled)
+						child.checkDisabled = data.checkDisabled
+					this.rendDynamicNodes(child, $node.children(".node-content"))
+				}
+
 			}
+
+			
 
 
 		}
