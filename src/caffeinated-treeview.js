@@ -1,8 +1,9 @@
 !function($) {
 
 	window.String.prototype.toBoolean = function() {
-		if (this.toString() === "false") return false
-		return true
+		var str = this.toString()
+		return this.toString() !== "false"
+				&& this.toString() !== "undefined"
 	}
 
 	Object.defineProperty(
@@ -28,226 +29,274 @@
 		}
 	)
 
+	$.fn.removeProps = function(props) {
+		//TODO 
+	}
 
-	var Tree = function(element, options) {
+
+	/*
+	 * Class define section
+	 */
+
+	var TreeView = function(element, options) {
 		this.$element = $(element)
-		this.options = $.extend({}, Tree.DEFAULTS, options)
+		this.options = $.extend({}, TreeView.DEFAULTS, options)
 		this.rend()
 	}
 
-	Tree.prototype = {
+	TreeView.prototype = {
 
-		constructor			: Tree
+		constructor		: TreeView
 
-		, rend				: function(){
-			var $element = this.$element
-				, options = this.options
-				, data = options.data
+		, rend			: function() {
 
-			//Rend Static Nodes
-			if ($element.children().length)
-				this.rendStaticNodes()
-
-			//Rend nodes from data
-			if (data)
-				this.rendDataNodes(data)
-
-			//Register node events listeners
-			//this.regEventsListeners()
+			this.rendStaticNodes()
+			this.rendDynamicNodes()
 
 		}
 
-		, rendStaticNodes	: function(){
-			
-			var $element = this.$element
-				, options = this.options
+		, rendStaticNodes	: function($el) {
 
-			//*
-			//Detect and wrap base dom with div
-			if ($element[0].nodeName.toLowerCase() === "ul") {
+			var $dom = $el || this.$element
+				, options = this.options
+				, data = this.dom2data($dom)
+
+			if ($dom[0].nodeName.toLowerCase() === "ul") {
 				var wrapper = $("<div/>")
-						.attr("id", $element.attr("id"))
-						.addClass($element.attr("class"))
+					, rootAttrs = {
+						id		: $dom.attr("id")
+						, class	: $dom.attr("class")
+						, title	: $dom.attr("title")
+						, style	: $dom.attr("style")
+					}
+
+				wrapper.prop(rootAttrs)
+					.addClass("tree-view")
 				
-				$element
+
+				//TODO it could be more clearly
+				$dom
 					.removeAttr("id")
 					.removeAttr("class")
+					.removeAttr("title")
+					.removeAttr("style")
 					.wrap(wrapper)
 				
-				$element = this.$element = $element.parent()
+				$dom = this.$element = $dom.parent()
 
 				if (options.panelMenu)
-					$element.attr("context-menu", options.panelMenu)
+					$dom.attr("contextmenu", options.panelMenu)
 			}
-			//*/
-			$element.addClass("tree-view")
 			
-			//Process folder node
-			this.rendFolderNodes($element.find("ul"))
-			this.rendItemNodes($element.find("li"))
+			$dom.html("")
+			this.rendDynamicNodes(data)
+
 		}
 
-		, rendFolderNodes	: function(nodes) {
+		, dom2data			: function($el) {
 			
-			var $element = this.$element
+			var $dom = $el
 				, options = this.options
-				, processIcon = this.processIcon
-				, processCheckBox = this.processCheckBox
+				, data = {
 
-			nodes.each(function() {
-				
-				var $this = $(this)
-					, children = $this.children()
-					, checkable
-						= ($this.attr("checkable")
-							|| options.allCheckable.toString()).toBoolean()
-					//, checked = $this.attr("box-checked") || options.allChecked
-					, checkDisabled
-						= ($this.attr("check-disabled")
-							|| options.allCheckDisabled.toString()).toBoolean()
-					, collapsed = $this.attr("collapsed") || options.allCollapsed
-					, title = $('<span class="title-label"/>')
-						.text($this.attr("title"))
-						.wrap('<div class="node-title"'
-							+ (options.folderMenu 
-								? ' context-menu="' + options.folderMenu + '"' 
-								: ' ' )
-							+ '/>')
-						.parent()
-					, content = $('<div class="node-content"/>')
+					title		: $dom.attr("title") || $dom.text()
+					, type			: "item"
+					, isOpen		: $dom.hasClass("toggle-open")
+										|| options.allDefaultOpen
 
-				$this.prepend(title)
+					//icon
+					, hasIcon		: ($dom.attr("icon") !== undefined)
+										|| options.allHasIcon
+					, icon			: $dom.attr("contextmenu")
+										|| options.icons.item
+					//check-box
+					, checkable 	: $dom.attr("checkable")
+										|| $dom.hasClass("checkable")
+										|| options.allCheckable
+					, checked		: $dom.attr("box-checked")
+										|| $dom.hasClass("checked")
+										|| options.allChecked
+					, checkDisabled	: $dom.attr("check-disabled")
+										|| $dom.hasClass("check-disabled")
+										|| options.allCheckDisable
+					//context-menu
+					, contextmenu	: $dom.attr("contextmenu")
+										|| options.itemMenu
+					//actions
+					, dataToggle	: $dom.data("toggle")
+										|| $dom.children("a:first").data("toggle")
+					, toggleTarget	: $dom.attr("href")
+										|| $dom.children("a:first").attr("href")
 
-				/*
-				if (checkable) {
-					var checkBoxIcon = $('<span class="icon check-box"/>')
-					checkBoxIcon
-						.addClass(checked ? "checked" : "")
-					title.prepend(checkBoxIcon)
-				}*/
-				processCheckBox($this, options)
-
-				if (checkDisabled) {
-					checkBoxIcon.addClass(checkDisabled ? "disabled" : "")
-					$this.find("li, ul").attr("check-disabled", "true")
 				}
 
-				if (collapsed) {
-					$this.removeClass("toggle-open")
-				} else {
-					$this.addClass("toggle-open")
-				}
-
-				//Insert folder icon
-				processIcon($this, options)
-
-				//Insert toggle icon
-				if (children.length) {
-					children.wrapAll(content)
-					title.prepend('<span class="icon icon-tree-toggle"/>')
-				} else {
-					$this.append(content)
-					title.prepend('<span class="icon icon-tree-toggle-empty"/>')
-				}
-
-			})
-
-		}
-
-		, rendItemNodes		: function(nodes) {
-			
-			var $element = this.$element
-				, options = this.options
-				, processCheckBox = this.processCheckBox
-				, processIcon = this.processIcon
-				, contextmenu = options.itemMenu
-
-			nodes.each(function() {
-
-				var $this = $(this)
-					, checkDisabled = $this.attr("check-disabled") === "true"
-						 || options.allCheckDisabled
-				
-				if (contextmenu) $this.attr("context-menu", contextmenu)
-
-				processCheckBox($this, options)
-				processIcon($this, options)
-
-				if (checkDisabled)
-					$this.find(".check-box").addClass("disabled")
-
-
-			})
-
-		}
-
-		, processIcon		: function(node, options){
-
-			if (!(node.attr("icon")
-					|| options.allHasIcon.toString()).toBoolean())
-				return
-			
-			var iconType = node[0].nodeName.toLowerCase() === "ul"
-					? "folder" : "item"
-				, nodeIcon 
-					= "icon "
-					+ (node.attr("icon")|| options.icons[iconType])
-				, iconElement = '<span class="' + nodeIcon + '"/>'
-
-				if (iconType === "folder") {
-					node.find(".node-title").prepend(iconElement)
-				} else
-					node.prepend(iconElement)
-
-		}
-
-		, processCheckBox	: function(node, options){
-			
-			if (!(node.attr("checkable")
-					|| options.allCheckable.toString()).toBoolean())
-				return
-
-			var nodeType = node[0].nodeName.toLowerCase() === "ul"
-					? "folder" : "item"
-				, checked = (node.attr("box-checked") || options.allChecked)
-					.toString().toBoolean()
-				, checkDisabled
-					= (node.attr("check-disabled")
-						|| options.allCheckDisabled.toString()).toBoolean()
-				, checkBox = $('<span class="icon check-box"/>')
-
-			if (checked) {
-				checkBox.addClass("checked")
+			for (var n in data) {
+				var d = data[n]
+				if(d === "false" || d == undefined) data[n] = false
 			}
 
-			if (nodeType === "folder") {
-				node.find(".node-title").prepend(checkBox)
-			} else {
-				node.prepend(checkBox)
+			if ($dom[0].nodeName.toLowerCase() === "ul") {
+				
+				var that = this
+					, childs = $dom.children()
+					, dom2data = this.dom2data
+
+				//this.ul2data($dom, data)
+				data.type = "folder"
+				data.contextmenu = $dom.attr("contextmenu")
+									|| options.folderMenu
+
+				if (childs.length > 0) {
+
+					data.childs = []
+
+					$dom.children().each(function() {
+						var $this = $(this)
+						data.childs.push(
+							dom2data.call(that, $this, data.childs))
+					})
+
+				}
+
 			}
 
+			return data
 		}
 
-		, rendDataNodes		: function() {
+		, rendDynamicNodes	: function(dat, $tgt) {
+			
+			var data = dat || this.options.data
+
+			if (data.type !== "folder" && data.type !== "item") return
+
+			var $target = $tgt || this.$element
+				//, data2ul = this.data2ul
+				//, data2li = this.data2li
+				, $node
+
+			if (data.type === "folder")
+				$node = this.data2ul(data)
+
+			if (data.type === "item")
+				$node = this.data2li(data)
+
+			$target.append($node.attr("contextmenu", data.contextmenu))
+
+			if (!data.childs) return
+
+			for (var i = 0; i < data.childs.length; i++) {
+				var child = data.childs[i]
+				if (data.checkDisabled)
+					child.checkDisabled = data.checkDisabled
+				this.rendDynamicNodes(child, $node.children(".node-content"))
+			}
+
+
+		}
+
+		, data2ul			: function(data) {
+			var $wrapper = $('<ul/>')
+				, $nodeTitle = $('<div class="node-title" />')
+				, $nodeContent = $('<div class="node-content" />')
+				, $iconArrow = $('<span class="icon icon-tree-toggle"/>')
+				, $iconFolder = $('<span class="icon icon-tree-folder"/>')
+				, $iconLabel = $('<span class="title-label">'
+					+ data.title + '</span>')
+
+
+			//Make parts together
+			$wrapper.append($nodeTitle)
+				.append($nodeContent)
+
+
+			//Process toggle arrow
+			if (!(data.childs && data.childs.length))
+				$iconArrow.addClass("empty")
+			$nodeTitle.append($iconArrow)
+
+
+			//Process icon
+			if (data.hasIcon)
+				$nodeTitle.append(this.makeIcon(data))
+
+
+			//Process node state
+			if (data.isOpen)
+				$wrapper.addClass("toggle-open")
+
+
+			//Process node checkbox
+			if (data.checkable)
+				$nodeTitle.append(this.makeCheckBox(data))
+
+
+			$nodeTitle.append($iconLabel)
+			return $wrapper
+		}
+
+		, data2li			: function(data) {
+			var $wrapper = $('<li/>')
+				, $link = $('<a/>')
+
+			$link.text(data.title)
+				.attr("href", data.toggleTarget)
+				.data("toggle", data.dataToggle)
+
+			if (data.checkable)
+				$wrapper.prepend(this.makeCheckBox(data))
+
+			if (data.hasIcon) 
+				$wrapper.prepend(this.makeIcon(data))
+
+			$wrapper.append($link)
+				.addClass("item")
+
+
+			return $wrapper
+
+		}
+
+		, makeCheckBox		: function(data){
+
+			var $checkbox = $('<span/>')
+				, classes = "icon check-box"
+
+			if (data.checked)
+				classes += " checked"
+
+			if (data.checkDisabled)
+				classes += " disabled"
+
+			return $checkbox.addClass(classes)
 			
 		}
 
-		, getSelectedNodes	: function() {
-			var nodes = []
-
-		}
-
-		, getSelectedValues	: function(){
+		, makeIcon			: function(data){
 			
+			var $icon = $('<span />')
+				, type = "icon icon-tree-" + data.type
+
+			return $icon.addClass(type)
+
 		}
 
-		, getCurrentItem	: function(){
+		, addFolderTo		: function(node, $to) {
+
+			var $folder = $("<ul/>")
+			
+			//TODO:folder dom create job
+
+			$to.append($folder)
+
+		}
+
+		, addItemTo			: function(node, $to) {
 			
 		}
 
 	}
 
-	Tree.DEFAULTS = {
+	TreeView.DEFAULTS = {
 		method: "POST",
 		datatype: "json",
 		url: false,
@@ -260,6 +309,7 @@
 		data: null,
 		clicktoggle: true, //点击节点展开和收缩子节点
 		theme: "bbit-tree-arrows" //bbit-tree-lines ,bbit-tree-no-lines,bbit-tree-arrows
+
 		, icons	: {
 			"folder" 			: "icon-tree-folder"
 			, "item"			: "icon-tree-item"
@@ -267,12 +317,24 @@
 			, "toggle-closed"	: "icon-tree-toggle-closed"
 		}
 		, allCollapsed		: false
+		, allDefaultOpen	: false
 		, allHasIcon		: true
 		, allCheckable		: true
 		, allChecked		: false
 		, allCheckDisabled	: false
-		, dataMap			: {
-			root	: ""
+		, keyDict			: {
+			root			: "root"
+			, title			: "title"
+			, type			: "type"
+			, isOpen		: "isOpen"
+			, hasIcon		: "hasIcon"
+			, icon			: "icon"
+			, checkable		: "checkable"
+			, checked		: "checked"
+			, checkDisabled	: "checkDisabled"
+			, contextmenu	: "contextmenu"
+			, dataToggle	: "dataToggle"
+			, toggleTarget	: "toggleTarget"
 		}
 		//Context Menu Define
 		, folderMenu		: ''
@@ -283,6 +345,11 @@
 	}
 
 
+
+	/*
+	 * Plug-in regist section
+	 */
+
 	var _tree = $.fn.tree
 	
 	$.fn.tree = function(option) {
@@ -290,11 +357,11 @@
 			
 			var $this = $(this)
 				, options = $.extend({}
-					, Tree.DEFAULTS
+					, TreeView.DEFAULTS
 					, typeof option === "object" && option)
 				, data = $this.data("tree")
 
-			if (!data) $this.data("tree", (data = new Tree(this, options)))
+			if (!data) $this.data("tree", (data = new TreeView(this, options)))
 			if (typeof option === 'string') data[option]()
 
 		})
@@ -305,81 +372,159 @@
 		return this
 	}
 
+
+
+	/*
+	 * Event bind section
+	 */
+
+	//Define event handler
+	var folderCheckStateHandler = function() {}
+		, itemCheckStateHandler = function() {}
+		, clearContextMenuHandler = function() {}
+
+	//Bind event
 	$(document)
-		.on('click.tree-view.check-box.folder'
-			, '.tree-view ul > .node-title > .check-box', function() {
+		
 
-				if ($(this).hasClass("disabled")) return
-
+		//Bind Tree View item/folder check-box state change event
+		.on("click.tree-view.item.check-box"
+			, ".tree-view .item .check-box", function(e) {
+				
 				var $this = $(this)
-					, allChilds = $this.parent().next().find('.check-box')
-					, avilableChilds = $this.parent().next().find('.check-box:not([class~="disabled"])')
-					, parents = $this.closest("ul")
-						.parentsUntil(".tree-view", "ul")
-					, dblchecks = $this.closest("ul").find('.node-title > .check-box')
+				if ($this.hasClass("disabled")) return
 
 				$this.toggleClass("checked")
-					.addClass("half")
 
-				if ($this.hasClass("checked"))
-					avilableChilds.addClass("checked")
-				else
-					avilableChilds.removeClass("checked")
+				var $parents = $this.parentsUntil(".tree-view", "ul")
+					, $parentChks = $parents.find("> .node-title .check-box")
 
-				var checkedChilds = $this.parent().next().find('.check-box.checked')
+				$parentChks.trigger("change.tree-view.item.checkstate")
 
-				if (allChilds.length === checkedChilds.length)
-					$this.removeClass("half")
+			})
+		.on("click.tree-view.folder.check-box"
+			, ".tree-view .node-title .check-box", function(e) {
+				//
+				var $this = $(this)
+				if ($this.hasClass("disabled")) return
 
-				checkParentsStat(parents)
+				//
+				$this.toggleClass("checked")
+					.removeClass("half")
 
+				var	$nodeContent = $this.parent().next()
+					, allchks = $nodeContent.find(".check-box")
+					//, dischks = $nodeContent.find(".check-box.disabled").length
+					, avlchks = $nodeContent.find(".check-box:not([class~='disabled'])")
+					, dischks = allchks.length - avlchks.length
 				//*
-				dblchecks.each(function() {
-					var $that = $(this)
-						, childs = $that.parent().next().find('.check-box')
-						, checkedChilds = $that.parent().next().find('.check-box.checked')
-					
-					if (childs.length !== checkedChilds.length
-						&& checkedChilds.length > 0) {
-						
-						$that.addClass("half")
-					} else
-						$that.removeClass("half")
-					
-				})
+				if (dischks > 0 && dischks < allchks.length)
+					$this.addClass("half")
+
+				
+				if ($this.hasClass("checked"))
+					avlchks.addClass("checked")
+				else
+					avlchks.removeClass("checked")
 				//*/
+				//
+				var $parentUls = $this.closest("ul").parentsUntil(".tree-view", "ul")
+					, $childChks = $this.parent().next().find(".node-title .check-box")
+					, $parentChks = $parentUls.find("> .node-title .check-box")
+
+				//$this.trigger("change.tree-view.item.checkstate")
+				$parentChks.trigger("change.tree-view.item.checkstate")
+				$childChks.trigger("change.tree-view.item.checkstate")
 
 			})
-		.on('click.tree-view.check-box.item'
-			, '.tree-view li > .check-box', function() {
-				if ($(this).hasClass("disabled")) return
-				$(this).toggleClass("checked")
-				var parents = $(this).parentsUntil(".tree-view", "ul")
-				checkParentsStat(parents)
+		.on("change.tree-view.item.checkstate"
+			, ".tree-view .node-title .check-box", function(e) {
+				
+				var $this = $(this)
+				if ($this.hasClass("disabled")) return
+
+				var	$nodeContent = $this.parent().next()
+					, allchks = $nodeContent.find(".check-box").length
+					, unchks = $nodeContent.find(".check-box:not([class~='checked'])").length
+
+				$this.removeClass("checked half")
+
+				if(!allchks) {
+					if ($this.closest("ul")
+						.parent().prev()
+						.find(".check-box")
+						.hasClass("checked"))
+						$this.addClass("checked")
+					return
+				}
+
+				if(allchks - unchks > 0)
+					$this.addClass("checked")
+
+				if(unchks > 0)
+					$this.addClass("half")
+
 			})
-		.on('click.tree-view.toggle'
-			, '.tree-view ul > .node-title > .icon-tree-toggle', function() {
+		/*
+		.on("change.tree-view.folder.checkstate"
+			, ".tree-view .item .check-box", function(e) {
+				var $this = $(this)
+				if ($this.hasClass("disabled")) return
+
+				var	$nodeContent = $this.parent().next()
+					, allchks = $nodeContent.find(".check-box")
+					, avlchks = $nodeContent.find(".check-box:not([class~='disabled'])")
+					, dischkCount = allchks.length - avlchks.length
+
+				if (dischks > 0 && dischks < allchks.length)
+					$this.addClass("half")
+
+				//
+				if ($this.hasClass("checked"))
+					avlchks.addClass("checked")
+				else
+					avlchks.removeClass("checked")
+
+			})
+		//*/
+
+		
+		//Bind Tree View folder toggle event
+		.on("click.tree-view.folder-arrow"
+			, ".tree-view .node-title .icon-tree-toggle", function(e) {
 				$(this).closest("ul").toggleClass("toggle-open")
 			})
-		.on('dblclick.tree-view.foldericon'
-			, '.tree-view .icon.icon-tree-folder', function() {
+		.on("dblclick.tree-view.folder-icon"
+			, ".tree-view .node-title .icon-tree-folder", function(e) {
 				$(this).closest("ul").toggleClass("toggle-open")
 			})
-		.on('click.tree-view.select contextmenu.tree.select'
-			, '.tree-view .icon, .tree-view .title-label, .tree-view a', function(e) {
+
+
+		//Bind Tree View select event
+		.on("click.tree-view.select contextmenu.tree-view.select"
+			, ".tree-view .icon, .tree-view .title-label, .tree-view a", function(e) {
 				var $this = $(this).parent()
 					, root = $this.closest(".tree-view")
 					, others = root.find(".node-title, li")
 				others.removeClass("selected")
 				$this.addClass("selected")
 			})
-		.on('contextmenu.tree'
-			, '.tree-view, .tree-view .icon, .tree-view .title-label, .tree-view a', function(e) {
+
+		
+		//Bind Tree View context-menu toggle event
+		.on("contextmenu.tree-view.contextmenu.show"
+			, ".tree-view, .tree-view .icon, .tree-view .title-label, .tree-view a", function(e) {
+				
+				$(".dropdown-menu").removeClass("show")
+				e.stopPropagation()
 				
 				var $this = $(this)
 					, target = $this.hasClass("tree-view") ? $this : $this.parent()
-					, contextmenu = target.attr("context-menu")
-					, pointX = e.clientX - 10
+					, contextmenu = target.closest("ul, li, .tree-view").attr("contextmenu")
+
+				if(!contextmenu) return true
+
+				var pointX = e.clientX - 10
 					, pointY = e.clientY - 5
 					, menu = $("#" + contextmenu)
 
@@ -389,37 +534,12 @@
 					.css("left", pointX)
 					.addClass("show")
 
-				$(document)
-
 				return false
 			})
-		/*.on("click.contextmenu.off contextmenu.contextmenu.off", function(e) {
+		.on("click.tree-view.contextmenu.hide contextmenu.tree-view.contextmenu.hide"
+			, function(e) {
 				$(".dropdown-menu").removeClass("show")
-			})*/
-	
-	var checkParentsStat = function(parents) {
-		parents.each(function() {
-			var parent = $(this)
-				, isAllChecked
-					= parent.find(".node-content .check-box").length
-						=== parent.find(".node-content .check-box.checked").length
-				, isHalfChecked
-					 = !isAllChecked
-					 && parent.find(".node-content .check-box.checked").length > 0 
-				, checkBox = parent.children(".node-title").find(".check-box")
+			})
 
-			checkBox.removeClass("checked")
-			checkBox.removeClass("half")
-
-			if (isHalfChecked)
-				checkBox.addClass("half checked")
-			if (isAllChecked)
-				checkBox.addClass("checked")
-		})
-	}
-
-	$(document).on("change.tee-view.folder", ".tree-view .node-title .check-box", function() {
-		console.log("123")
-	})
 	
 } (window.jQuery)
