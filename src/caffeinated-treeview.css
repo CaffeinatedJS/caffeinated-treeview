@@ -4,7 +4,7 @@
 .tree-view {
 	margin: 1em 0 0 0;
 	padding: .5em;
-	/*background-color: #F7F7F9;*/
+	background-color: #F7F7F9;
 	border: 1px solid #E1E1E8;
 	border-radius: 5px;
 }
@@ -89,7 +89,7 @@
 	background-position: -195px 5px;
 }
 
-/*  */
+/* toggle arrow style define */
 .tree-view .toggle-open > .node-title > .icon-tree-toggle {
 	background-position: -20px -20px;
 }
@@ -100,7 +100,7 @@
 	background-position: 45px -20px;
 }
 
-/*  */
+/* folder icon define */
 .tree-view .toggle-open > .node-title > .icon-tree-folder {
 	background-position: -70px -20px;
 }
@@ -108,7 +108,7 @@
 	background-position: -45px -20px;
 }
 
-/*  */
+/* item icon define */
 .tree-view .icon-tree-item {
 	background-position: -95px -20px;
 }
