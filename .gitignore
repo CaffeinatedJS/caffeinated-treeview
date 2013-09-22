@@ -1,4 +1,12 @@
 .DS_Store
+
+*~
+*.diff
+*.patch
+
 node_modules
+bower_components
+
+dist
 
 .svn

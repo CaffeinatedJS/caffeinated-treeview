@@ -5,7 +5,7 @@
 		return this.toString() !== "false"
 				&& this.toString() !== "undefined"
 	}
-
+	
 	Object.defineProperty(
 		Object.prototype
 		, 'getSubObject'
@@ -307,9 +307,13 @@
 			
 		}
 
+		
+
 	}
 
 	TreeView.DEFAULTS = {
+
+		/*
 		method: "POST",
 		datatype: "json",
 		url: false,
@@ -322,7 +326,7 @@
 		data: null,
 		clicktoggle: true, //点击节点展开和收缩子节点
 		theme: "bbit-tree-arrows" //bbit-tree-lines ,bbit-tree-no-lines,bbit-tree-arrows
-
+		*/
 		, icons	: {
 			"folder" 			: "icon-tree-folder"
 			, "item"			: "icon-tree-item"
